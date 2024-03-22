@@ -1,110 +1,184 @@
-import java.util.ArrayList;
 import java.util.HashSet;
 
+public class Node {
+    // State information
+    private int lBandit;
+    private int rBandit;
+    private int lMerchant;
+    private int rMerchant;
+    private boolean left;
 
-public class Node{
-    //State information
-    public int lBandit;
-    public int rBandit;
-    public int lMerchant;
-    public int rMerchant;
-    boolean left;
+    private boolean isVisited = false;
 
-    boolean isVisited = false;
+    private StringBuilder explanation = new StringBuilder();
+    private StringBuilder explainCount = new StringBuilder();
 
-    StringBuilder explanation = new StringBuilder();
-    StringBuilder explainCount = new StringBuilder();
+    private StringBuilder moveDescription = new StringBuilder();
 
-    //Child Nodes
-    HashSet<Node> children;
-    HashSet<Node> pastNodes;
+    // Child Nodes and Past Nodes
+    private HashSet<Node> children = new HashSet<>();
+    private HashSet<Node> pastNodes = new HashSet<>();
 
-    Node parentNode;
-    //Initialization
-    public Node(int lBandit,int rBandit, int lMerchant, int rMerchant, boolean left){
+    private Node parentNode;
+
+    // Initialization
+    public Node(int lBandit, int rBandit, int lMerchant, int rMerchant, boolean left) {
         this.lBandit = lBandit;
         this.rBandit = rBandit;
         this.lMerchant = lMerchant;
         this.rMerchant = rMerchant;
         this.left = left;
-        this.children = new HashSet<>();
-        this.pastNodes = new HashSet<>();
     }
 
-    public boolean isVisited(){
-        if(isVisited == true){
-            return true;
+    // Getter methods
+    public int getlBandit() {
+        return lBandit;
+    }
+
+    public int getrBandit() {
+        return rBandit;
+    }
+
+    public int getlMerchant() {
+        return lMerchant;
+    }
+
+    public int getrMerchant() {
+        return rMerchant;
+    }
+
+    public void setParentNode(Node parentNode) {
+        this.parentNode = parentNode;
+    }
+
+    public Node getParentNode() {
+        return this.parentNode;
+    }
+
+    public void addPastNode(Node node) {
+        this.pastNodes.add(node);
+    }
+
+    public HashSet<Node> getPastNodes() {
+        return this.pastNodes;
+    }
+
+    public void addPastNodes(HashSet<Node> nodes) {
+        this.pastNodes.addAll(nodes);
+    }
+
+    // Method to append move descriptions
+    public void addMoveDescription(String description) {
+        if (moveDescription.length() > 0) {
+            moveDescription.append("\n");
         }
-        return false;
+        moveDescription.append(description);
     }
 
-    public void setVisited(){
-        isVisited = true;
+    public StringBuilder getMoveDescription() {
+        return moveDescription;
     }
-    //Add child Node to children list
+
+    public void setLeft(boolean left) {
+        this.left = left;
+    }
+
+    public boolean isLeft() {
+        return this.left;
+    }
+
+    public StringBuilder getExplanation() {
+        return this.explanation;
+    }
+
+    public StringBuilder getExplainCount() {
+        return this.explainCount;
+    }
+
+    public boolean isVisited() {
+        return this.isVisited;
+    }
+
+    public void setVisited() {
+        this.isVisited = true;
+    }
+
+    // Add child Node to children list
     public void addChild(Node child) {
         children.add(child);
     }
 
-    //Move bandits from left to right
-    public void AddBanditRight(int howMany){
-        rBandit =   rBandit + howMany;
-        lBandit = lBandit - howMany;
-    }
-    //Move bandits from right to left
-    public void AddBanditLeft(int howMany){
-        lBandit =   lBandit + howMany;
-        rBandit = rBandit - howMany;
-    }
-
-    //Move merchant from left to right
-    public void AddMerchantRight(int howMany){
-        rMerchant = rMerchant + howMany;
-        lMerchant = lMerchant - howMany;
-
+    // Move bandits from left to right with validation and logging
+    public void addBanditRight(int howMany) {
+        if (lBandit >= howMany) {
+            rBandit += howMany;
+            lBandit -= howMany;
+            System.out.println("Moved " + howMany + " bandit(s) right. New state: " + this);
+        } else {
+            System.out.println("Attempted to move " + howMany + " bandit(s) right, but only " + lBandit + " available.");
+        }
     }
 
-    //Move merchant from right to left
-    public void AddMerchantLeft(int howMany){
-        lMerchant = lMerchant + howMany;
-        rMerchant = rMerchant - howMany;
+    // Move bandits from right to left with validation and logging
+    public void addBanditLeft(int howMany) {
+        if (rBandit >= howMany) {
+            lBandit += howMany;
+            rBandit -= howMany;
+            System.out.println("Moved " + howMany + " bandit(s) left. New state: " + this);
+        } else {
+            System.out.println("Attempted to move " + howMany + " bandit(s) left, but only " + rBandit + " available.");
+        }
+    }
+
+    // Move merchant from left to right with validation and logging
+    public void addMerchantRight(int howMany) {
+        if (lMerchant >= howMany) {
+            rMerchant += howMany;
+            lMerchant -= howMany;
+            System.out.println("Moved " + howMany + " merchant(s) right. New state: " + this);
+        } else {
+            System.out.println("Attempted to move " + howMany + " merchant(s) right, but only " + lMerchant + " available.");
+        }
+    }
+
+    // Move merchant from right to left with validation and logging
+    public void addMerchantLeft(int howMany) {
+        if (rMerchant >= howMany) {
+            lMerchant += howMany;
+            rMerchant -= howMany;
+            System.out.println("Moved " + howMany + " merchant(s) left. New state: " + this);
+        } else {
+            System.out.println("Attempted to move " + howMany + " merchant(s) left, but only " + rMerchant + " available.");
+        }
     }
 
     @Override
     public int hashCode() {
-        return (this.lBandit +2) + (this.lMerchant *3 )+ (this.rBandit * 2) + (this.rMerchant/2) % 10;
+        int result = 17;
+        result = 31 * result + lBandit;
+        result = 31 * result + rBandit;
+        result = 31 * result + lMerchant;
+        result = 31 * result + rMerchant;
+        result = 31 * result + (left ? 1 : 0);
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Node)) return false;
 
-        if(this == obj){
-            return true;
-        }
-        if(obj == null || this.getClass() != obj.getClass()){
-            return false;
-        }
+        Node node = (Node) obj;
 
-        Node n = (Node)obj;
-
-        return this.lMerchant == n.lMerchant &&
-                this.rMerchant == n.rMerchant &&
-                this.lBandit == n.lBandit &&
-                this.rBandit == n.rBandit;
-
-
-
-//        if(this.toString().equals(obj.toString())){
-//            return true;
-//        }
-
+        return lBandit == node.lBandit &&
+                rBandit == node.rBandit &&
+                lMerchant == node.lMerchant &&
+                rMerchant == node.rMerchant;
     }
 
-    //Print the state info
     @Override
-    public String toString(){
-        return "lMerchant: " + lMerchant+", rMerchant: "+rMerchant+", lBandit: "+ lBandit+", rBandit: "+ rBandit;
+    public String toString() {
+        return String.format("Left Side - Bandits: %d, Merchants: %d | Right Side - Bandits: %d, Merchants: %d | Boat is on the %s",
+                lBandit, lMerchant, rBandit, rMerchant, left ? "left" : "right");
     }
-
-
 }
